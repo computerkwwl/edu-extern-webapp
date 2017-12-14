@@ -51,6 +51,34 @@ public abstract class IdentificationAppBaseCodeImporterListener<ID extends Seria
       }
     }
     
+    String endOnValue = (String) dataMap.get("endOn");
+    if (StringUtils.isNotBlank(endOnValue)) {
+      if (!DateUtils.isValidDate(endOnValue, "yyyy-MM-dd")) {
+        tr.addFailure("截止日期要求格式为 yyyy-MM-dd，但是实际右边的格式！！！", endOnValue);
+      }
+    }
+    
+    java.sql.Date nowAt = new java.sql.Date(System.currentTimeMillis());
+    if (!tr.hasErrors()) {
+      java.sql.Date beginOn = nowAt;
+      java.sql.Date endOn = null;
+      if (StringUtils.isNotBlank(beginOnValue) && StringUtils.isNotBlank(endOnValue)) {
+        beginOn = DateUtils.toSqlDate(beginOnValue, "yyyy-MM-dd");
+        endOn = DateUtils.toSqlDate(endOnValue, "yyyy-MM-dd");
+        if (endOn.before(beginOn)) {
+          tr.addFailure("启用日期不能晚于截止日期！！！", "启用日期：" + beginOnValue + "，截止日期：" + endOnValue);;
+        }
+      } else if (StringUtils.isBlank(beginOnValue) && StringUtils.isNotBlank(endOnValue)) {
+        endOn = DateUtils.toSqlDate(endOnValue, "yyyy-MM-dd");
+        if (endOn.before(nowAt)) {
+          tr.addFailure("截止日期不能早于今天！！！", "截止日期：" + endOnValue);;
+        }
+      } else {
+        dataMap.put("beginOn", beginOn);
+        dataMap.put("endOn", endOn);
+      }
+    }
+    
     itemStartExtra(tr);
     
     if (!tr.hasErrors()) {
@@ -65,13 +93,8 @@ public abstract class IdentificationAppBaseCodeImporterListener<ID extends Seria
           entity = entities.get(0);
         }
         BeanUtils.setProperty(entity, "name", name);
-        java.sql.Date nowAt = new java.sql.Date(System.currentTimeMillis());
-        if (entities.isEmpty()) {
-          BeanUtils.setProperty(entity, "beginOn", StringUtils.isBlank(beginOnValue) ? nowAt
-              : DateUtils.toSqlDate(beginOnValue, "yyyy-MM-dd"));
-        } else if (StringUtils.isNotBlank(beginOnValue)) {
-          BeanUtils.setProperty(entity, "beginOn", DateUtils.toSqlDate(beginOnValue, "yyyy-MM-dd"));
-        }
+        BeanUtils.setProperty(entity, "beginOn", dataMap.get("beginOn"));
+        BeanUtils.setProperty(entity, "endOn", dataMap.get("endOn"));
         BeanUtils.setProperty(entity, "updatedAt", nowAt);
         settingPropertyExtraInEntity(entity);
         importer.setCurrent(entity);
