@@ -22,6 +22,8 @@
     <module>web</module>
     <module>adminapp</module>
     <module>studentapp</module>
+    <module>repo</module><!--仓库-->
+    <module>identificationapp</module>
   </modules>
 
   <dependencies>

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+<!--     <bean id="edu.extern.grade.apply" class="org.openurp.base.code.ExternGradeApplyModule" /> -->
+    <bean class="org.openurp.basis.edu.base.code.ExternGradeApplyModule" />
+</beans>

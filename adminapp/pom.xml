@@ -26,5 +26,15 @@
       <artifactId>openurp-edu-nav-default</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.openurp.edu.extern.identificationapp.base</groupId>
+      <artifactId>identificationapp-base-web</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.openurp.edu.extern.identificationapp.identification</groupId>
+      <artifactId>identificationapp-identification-web</artifactId>
+      <version>${project.version}</version>
+    </dependency>
   </dependencies>
 </project>
