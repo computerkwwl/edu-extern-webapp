@@ -1,6 +1,6 @@
 create table edu_base.xb_certificate_levels (
   id int8 NOT NULL,
-  code varchar(20) NOT NULL,
+  code varchar(50) NOT NULL,
   name varchar(200) NOT NULL,
   en_name varchar(100),
   begin_on date,
@@ -14,7 +14,7 @@ ALTER TABLE edu_base.xb_certificate_levels
 
 create table edu_base.xb_ext_exam_subjects (
   id int8 NOT NULL,
-  code varchar(20) NOT NULL,
+  code varchar(50) NOT NULL,
   name varchar(200) NOT NULL,
   en_name varchar(100),
   begin_on date,
@@ -29,7 +29,7 @@ ALTER TABLE edu_base.xb_ext_exam_subjects
 
 create table edu_base.xb_certificate_types (
   id int8 NOT NULL,
-  code varchar(20) NOT NULL,
+  code varchar(50) NOT NULL,
   name varchar(200) NOT NULL,
   en_name varchar(100),
   exam_subject_id int8 NOT NULL,
@@ -48,7 +48,7 @@ ALTER TABLE edu_base.xb_certificate_types
 
 create table edu_base.xb_extern_exam_times (
   id int8 NOT NULL,
-  code varchar(20) NOT NULL,
+  code varchar(50) NOT NULL,
   name varchar(200) NOT NULL,
   en_name varchar(100),
   begin_on date,
@@ -62,7 +62,7 @@ ALTER TABLE edu_base.xb_extern_exam_times
 
 create table edu_base.xb_certificates (
   id int8 PRIMARY KEY,
-  code varchar(20) NOT NULL,
+  code varchar(50) NOT NULL,
   name varchar(200) NOT NULL,
   en_name varchar(100),
   type_id int8 NOT NULL,

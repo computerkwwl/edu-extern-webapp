@@ -4,7 +4,7 @@
     bar.addBack();
   [/@]
   [@b.form name="examTimeForm" action="!save" target="examTimes" theme="list"]
-    [@b.textfield label="代码" name="examTime.code" value=(examTime.code)! required="true" maxlength="10" style="width:200px"/]
+    [@b.textfield label="代码" name="examTime.code" value=(examTime.code)! required="true" maxlength="20" style="width:200px"/]
     [@b.validity]
       $("[name='examTime.code']", document.examTimeForm).require().assert(function() {
         var isOk = false;

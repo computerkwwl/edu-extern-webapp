@@ -4,7 +4,7 @@
     bar.addBack();
   [/@]
   [@b.form name="typeForm" action="!save" target="types" theme="list"]
-    [@b.textfield label="代码" name="type.code" value=(type.code)! required="true" maxlength="10" style="width:200px"/]
+    [@b.textfield label="代码" name="type.code" value=(type.code)! required="true" maxlength="20" style="width:200px"/]
     [@b.validity]
       $("[name='type.code']", document.typeForm).require().assert(function() {
         var isOk = false;

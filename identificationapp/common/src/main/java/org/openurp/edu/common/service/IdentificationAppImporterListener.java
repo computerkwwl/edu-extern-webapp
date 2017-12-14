@@ -1,9 +1,11 @@
 package org.openurp.edu.common.service;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.beangle.commons.collection.CollectUtils;
 import org.beangle.commons.dao.EntityDao;
+import org.beangle.commons.entity.Entity;
 import org.beangle.commons.transfer.TransferMessage;
 import org.beangle.commons.transfer.TransferResult;
 import org.beangle.commons.transfer.importer.listener.ItemImporterListener;
@@ -12,7 +14,7 @@ import org.beangle.commons.transfer.importer.listener.ItemImporterListener;
  * @author zhouqi 2017年12月14日
  *
  */
-public abstract class IdentificationAppImporterListener extends ItemImporterListener {
+public abstract class IdentificationAppImporterListener<ID extends Serializable, E extends Entity<ID>> extends ItemImporterListener {
   
   protected EntityDao entityDao;
   

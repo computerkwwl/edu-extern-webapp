@@ -48,4 +48,12 @@ public class DateUtils {
   public static java.sql.Date toSqlDate(String dateValue, String dateFormat) {
     return new java.sql.Date(toUtilDate(dateValue, dateFormat).getTime());
   }
+  
+  public static String toFormatString(Date date, String dateFormat) {
+    return new SimpleDateFormat(dateFormat).format(date);
+  }
+  
+  public static String toFormatString(java.sql.Date date, String dateFormat) {
+    return new SimpleDateFormat(dateFormat).format(date);
+  }
 }

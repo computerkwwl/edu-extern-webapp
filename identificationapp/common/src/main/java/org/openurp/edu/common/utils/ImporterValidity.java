@@ -24,7 +24,7 @@ public final class ImporterValidity {
   
   private EntityDao entityDao;
   
-  public final java.sql.Date nowAt = new java.sql.Date(System.currentTimeMillis());
+  private final java.sql.Date nowAt = new java.sql.Date(System.currentTimeMillis());
   
   private ImporterValidity() {
     super();
@@ -34,6 +34,7 @@ public final class ImporterValidity {
     this();
     this.tr = tr;
     this.importer = importer;
+    this.entityDao = entityDao;
   }
   
   public static ImporterValidity newInstance(TransferResult tr, AbstractItemImporter importer, EntityDao entityDao) {
@@ -49,10 +50,18 @@ public final class ImporterValidity {
     return true;
   }
   
-  public boolean checkDate(String fieldName, String fieldMeaning, String dateFormat) {
+  public boolean checkDate(String fieldName, String fieldMeaning, String dateFormat, boolean isDefaultNow) {
     String fieldValue = (String) importer.getCurData().get(fieldName);
-    if (StringUtils.isNotBlank(fieldValue)) {
-      if (!DateUtils.isValidDate(fieldValue, "yyyy-MM-dd")) {
+    if (StringUtils.isBlank(fieldValue)) {
+      if (isDefaultNow) {
+        importer.getCurData().put(fieldName, nowAt);
+      } else {
+        importer.getCurData().put(fieldName, (java.sql.Date) null);
+      }
+    } else {
+      if (DateUtils.isValidDate(fieldValue, "yyyy-MM-dd")) {
+        importer.getCurData().put(fieldName, DateUtils.toSqlDate(fieldValue, "yyyy-MM-dd"));
+      } else {
         tr.addFailure(fieldMeaning + "要求格式为 " + dateFormat + "，但是实际右边的格式！！！", fieldValue);
         return false;
       }
@@ -61,30 +70,29 @@ public final class ImporterValidity {
   }
   
   public boolean checkDateBetween(String fieldName1, String fieldMeaning1, String fieldName2, String fieldMeaning2, String dateFormat) {
-    String fieldValue1 = (String) importer.getCurData().get(fieldName1);
-    String fieldValue2 = (String) importer.getCurData().get(fieldName2);
-    
-    java.sql.Date date1 = nowAt;
-    java.sql.Date date2 = null;
-    if (StringUtils.isNotBlank(fieldValue1) && StringUtils.isNotBlank(fieldValue2)) {
-      date1 = DateUtils.toSqlDate(fieldValue1, dateFormat);
-      date2 = DateUtils.toSqlDate(fieldValue2, dateFormat);
+    try {
+      java.sql.Date date1 = (java.sql.Date) importer.getCurData().get(fieldName1);
+      java.sql.Date date2 = (java.sql.Date) importer.getCurData().get(fieldName2);
+      
+      if (null == date2) {
+        return true;
+      }
+      
       if (date2.before(date1)) {
-        tr.addFailure(fieldMeaning1 + "不能晚于截止日期！！！", fieldMeaning1 + "：" + fieldValue1 + "，"
-            + fieldMeaning2 + "：" + fieldValue2);
+        if (date1.equals(nowAt)) {
+          tr.addFailure(fieldMeaning2 + "不能早于今天！！！", DateUtils.toFormatString(date2, dateFormat));
+        } else {
+          tr.addFailure(fieldMeaning1 + "不能晚于" + fieldMeaning2 + "！！！", fieldMeaning1 + "："
+              + DateUtils.toFormatString(date1, dateFormat) + "，" + fieldMeaning2 + "："
+              + DateUtils.toFormatString(date2, dateFormat));
+        }
         return false;
       }
-    } else if (StringUtils.isBlank(fieldValue1) && StringUtils.isNotBlank(fieldValue2)) {
-      date2 = DateUtils.toSqlDate(fieldValue2, dateFormat);
-      if (date2.before(nowAt)) {
-        tr.addFailure(fieldMeaning2 + "不能早于今天！！！", fieldMeaning2 + "：" + fieldValue2);
-        return false;
-      }
-    } else {
-      importer.getCurData().put(fieldName1, date1);
-      importer.getCurData().put(fieldName2, date2);
+      return true;
+    } catch (Exception e) {
+      e.printStackTrace();
+      throw new RuntimeException("Must be first called checkDate() method!!!");
     }
-    return true;
   }
   
   public <ID extends Serializable, E extends Entity<ID>> boolean checkCode(String fieldName, String fieldMeaning, Class<E> entityClass) {
@@ -99,5 +107,13 @@ public final class ImporterValidity {
       }
     }
     return true;
+  }
+  
+  public java.sql.Date getNowAt() {
+    return nowAt;
+  }
+  
+  public boolean hasError() {
+    return tr.hasErrors();
   }
 }

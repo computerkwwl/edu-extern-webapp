@@ -10,7 +10,7 @@ import org.openurp.edu.base.code.model.ExternExamSubject;
  * @author zhouqi 2017年12月13日
  *
  */
-public class ExternExamSubjectImporter extends IdentificationAppBaseCodeImporterListener<Integer, ExternExamSubject> {
+public class ExternExamSubjectImporter extends IdentificationAppBaseCodeImporterListener<ExternExamSubject> {
   
   public ExternExamSubjectImporter(EntityDao entityDao) {
     super(entityDao);
