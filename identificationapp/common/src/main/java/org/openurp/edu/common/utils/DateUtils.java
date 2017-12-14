@@ -1,7 +1,4 @@
-/**
- * 
- */
-package org.openurp.edu.common;
+package org.openurp.edu.common.utils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;

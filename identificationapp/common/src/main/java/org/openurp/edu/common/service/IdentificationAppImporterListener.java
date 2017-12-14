@@ -1,7 +1,4 @@
-/**
- * 
- */
-package org.openurp.basis.edu.base.code.service;
+package org.openurp.edu.common.service;
 
 import java.util.List;
 
