@@ -15,4 +15,9 @@ public class ExternExamSubjectImporter extends IdentificationAppBaseCodeImporter
   public ExternExamSubjectImporter(EntityDao entityDao) {
     super(entityDao);
   }
+  
+  @Override
+  protected boolean beforeItemStart() {
+    return validaty.checkTemplate("code", "name", "beginOn", "endOn");
+  }
 }

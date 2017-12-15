@@ -4,7 +4,6 @@ import org.beangle.commons.dao.EntityDao;
 import org.beangle.commons.entity.Entity;
 import org.beangle.commons.transfer.TransferResult;
 import org.openurp.edu.common.service.IdentificationAppImporterListener;
-import org.openurp.edu.common.utils.ImporterValidity;
 
 /**
  * @author zhouqi 2017年12月14日
@@ -12,18 +11,14 @@ import org.openurp.edu.common.utils.ImporterValidity;
  */
 public abstract class IdentificationAppIdentificateImporterListener<T extends Entity<Integer>> extends IdentificationAppImporterListener<Integer, T> {
   
-  protected ImporterValidity validaty;
-  
   public IdentificationAppIdentificateImporterListener(EntityDao entityDao) {
     super(entityDao);
   }
   
-  protected void itemStart(TransferResult tr) {
-    validaty = ImporterValidity.newInstance(tr, importer, entityDao);
-    
+  protected void itemStart() {
     itemStartExtra();
     
-    if (!tr.hasErrors()) {
+    if (!hasError()) {
       try {
         T entity = loadExistedEntity();
         settingPropertyExtraInEntity(entity);

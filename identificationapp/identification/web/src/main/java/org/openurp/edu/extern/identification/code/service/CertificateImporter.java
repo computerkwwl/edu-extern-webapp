@@ -23,6 +23,11 @@ public class CertificateImporter extends IdentificationAppIdentificateImporterLi
     super(entityDao);
   }
   
+  @Override
+  protected boolean beforeItemStart() {
+    return validaty.checkTemplate("type.code", "division.code", "examTime.code", "beginOn", "endOn");
+  }
+  
   protected void itemStartExtra() {
     // 下面 3 个字段是主键
     if (validaty.checkMustBe("type.code", "证书类型代码")) {
@@ -33,7 +38,7 @@ public class CertificateImporter extends IdentificationAppIdentificateImporterLi
       validaty.checkCode("examTime.code", "报考时间代码", ExternExamTime.class);
     }
     
-    if (!validaty.hasError()) {
+    if (!hasError()) {
       Certificate certificate = loadCertificate();
       
       if (null == certificate.getId()) {
@@ -42,7 +47,7 @@ public class CertificateImporter extends IdentificationAppIdentificateImporterLi
           validaty.checkDateBetween("beginOn", "启用日期", "endOn", "截止日期", "yyyy-MM-dd");
         }
       }
-      if (!validaty.hasError()) {
+      if (!hasError()) {
         importer.getCurData().put("certificate", certificate);
       }
     }

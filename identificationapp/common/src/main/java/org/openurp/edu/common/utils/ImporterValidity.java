@@ -6,6 +6,7 @@ package org.openurp.edu.common.utils;
 import java.io.Serializable;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.beangle.commons.dao.EntityDao;
 import org.beangle.commons.entity.Entity;
@@ -109,11 +110,31 @@ public final class ImporterValidity {
     return true;
   }
   
-  public java.sql.Date getNowAt() {
-    return nowAt;
+  public boolean checkTemplate(String fieldNameI, String...fieldNameK) {
+    String[] fieldNames = null;
+    fieldNames = ArrayUtils.addAll(fieldNames, fieldNameI);
+    fieldNames = ArrayUtils.addAll(fieldNames, fieldNameK);
+    
+    if (importer.getAttrs().length != fieldNames.length) {
+      tr.addFailure("当前的导入模板错误，请重新下载模板后再试试！！！", null);
+      return false;
+    }
+    
+    for (int i = 0; i < fieldNames.length; i++) {
+      String actual = importer.getAttrs()[i];
+      if (!StringUtils.equals(actual, fieldNames[i])) {
+        tr.addFailure("当前的导入模板错误，请重新下载模板后再试试！！！", null);
+        return false;
+      } 
+    }
+    return true;
   }
   
-  public boolean hasError() {
-    return tr.hasErrors();
+  public int errors() {
+    return tr.errors();
+  }
+  
+  public java.sql.Date getNowAt() {
+    return nowAt;
   }
 }

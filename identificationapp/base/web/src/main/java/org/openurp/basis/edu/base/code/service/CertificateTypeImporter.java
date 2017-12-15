@@ -19,6 +19,11 @@ public class CertificateTypeImporter extends IdentificationAppBaseCodeImporterLi
     super(entityDao);
   }
   
+  @Override
+  protected boolean beforeItemStart() {
+    return validaty.checkTemplate("code", "name", "level.code", "examSubject.code", "beginOn", "endOn");
+  }
+  
   protected void itemStartExtra() {
     validaty.checkCode("level.code", "级别代码", CertificateLevel.class);
     

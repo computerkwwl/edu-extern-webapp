@@ -15,4 +15,9 @@ public class CertificateLevelImporter extends IdentificationAppBaseCodeImporterL
   public CertificateLevelImporter(EntityDao entityDao) {
     super(entityDao);
   }
+
+  @Override
+  protected boolean beforeItemStart() {
+    return validaty.checkTemplate("code", "name", "beginOn", "endOn");
+  }
 }

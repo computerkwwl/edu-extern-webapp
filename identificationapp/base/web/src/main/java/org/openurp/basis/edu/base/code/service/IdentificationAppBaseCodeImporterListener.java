@@ -10,7 +10,6 @@ import org.beangle.commons.entity.Entity;
 import org.beangle.commons.transfer.TransferResult;
 import org.openurp.edu.common.service.IdentificationAppImporterListener;
 import org.openurp.edu.common.utils.BeanUtils;
-import org.openurp.edu.common.utils.ImporterValidity;
 
 /**
  * @author zhouqi 2017年12月14日
@@ -19,8 +18,6 @@ import org.openurp.edu.common.utils.ImporterValidity;
 public abstract class IdentificationAppBaseCodeImporterListener<T extends Entity<Integer>> extends IdentificationAppImporterListener<Integer, T> {
   
   private final Class<T> entityType = entityType();
-  
-  protected ImporterValidity validaty;
   
   private final Class<T> entityType() {
     Type e = getClass().getGenericSuperclass();
@@ -32,10 +29,8 @@ public abstract class IdentificationAppBaseCodeImporterListener<T extends Entity
     super(entityDao);
   }
   
-  protected void itemStart(TransferResult tr) {
+  protected void itemStart() {
     Map<String, Object> dataMap = importer.getCurData();
-    
-    validaty = ImporterValidity.newInstance(tr, importer, entityDao);
     if (validaty.checkMustBe("code", "代码")) {
       List<T> entities = entityDao.get(entityType, "code", importer.getCurData().get("code"));
       if (entities.isEmpty()) {
@@ -54,7 +49,7 @@ public abstract class IdentificationAppBaseCodeImporterListener<T extends Entity
     
     itemStartExtra();
     
-    if (!tr.hasErrors()) {
+    if (!hasError()) {
       try {
         T entity = (T) importer.getCurData().get(entityType.getSimpleName());
         if (null == entity) {

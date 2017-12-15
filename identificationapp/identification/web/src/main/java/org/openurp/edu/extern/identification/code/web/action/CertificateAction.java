@@ -7,6 +7,7 @@ import org.beangle.commons.transfer.importer.EntityImporter;
 import org.openurp.basis.edu.base.code.web.action.ExternBaseAction;
 import org.openurp.code.geo.model.Division;
 import org.openurp.edu.base.code.model.CertificateType;
+import org.openurp.edu.base.code.model.ExternExamSubject;
 import org.openurp.edu.base.code.model.ExternExamTime;
 import org.openurp.edu.extern.identification.code.service.CertificateImporter;
 import org.openurp.edu.extern.identification.model.Certificate;
@@ -18,6 +19,7 @@ import org.openurp.edu.extern.identification.model.Certificate;
 public class CertificateAction extends ExternBaseAction<Integer, Certificate> {
   
   protected void indexSetting() {
+    put("subjects", codeService.getCodes(ExternExamSubject.class));
     put("types", codeService.getCodes(CertificateType.class));
     put("divisions", entityDao.search(OqlBuilder.from(Division.class, "division").where("division.code like '__0000'").where("division.beginOn <= :now and (division.endOn is null or division.endOn >= :now)", new Date())));
     put("times", codeService.getCodes(ExternExamTime.class));

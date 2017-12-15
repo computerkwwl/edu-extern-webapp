@@ -12,6 +12,8 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.beangle.commons.dao.query.builder.OqlBuilder;
 import org.beangle.commons.entity.Entity;
+import org.beangle.commons.transfer.TransferResult;
+import org.beangle.commons.transfer.importer.EntityImporter;
 import org.beangle.ems.system.web.action.StaticfileAction;
 import org.beangle.struts2.convention.route.Action;
 import org.openurp.edu.web.action.BaseAction;
@@ -140,5 +142,29 @@ public abstract class ExternBaseAction<ID extends Serializable, E extends Entity
   public String remove() {
     entityDao.remove(entityDao.get(entityType, getIds(entityName, idType)));
     return redirect("search", "info.action.success");
+  }
+  
+  /**
+   * 导入信息
+   */
+  public String importData() {
+    TransferResult tr = new TransferResult();
+    EntityImporter importer = buildEntityImporter();
+    if (null == importer) { return forward("/components/importData/error"); }
+    try {
+      configImporter(importer);
+      importer.transfer(tr);
+      put("importer", importer);
+      put("importResult", tr);
+      if (tr.hasErrors()) {
+        return forward("/components/importData/error");
+      } else {
+        return forward("/components/importData/result");
+      }
+    } catch (RuntimeException e) {
+      tr.addFailure(e.getMessage(), StringUtils.EMPTY);
+      put("importResult", tr);
+      return forward("/components/importData/error");
+    }
   }
 }

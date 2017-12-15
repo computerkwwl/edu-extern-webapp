@@ -15,4 +15,9 @@ public class ExternExamTimeImporter extends IdentificationAppBaseCodeImporterLis
   public ExternExamTimeImporter(EntityDao entityDao) {
     super(entityDao);
   }
+  
+  @Override
+  protected boolean beforeItemStart() {
+    return validaty.checkTemplate("code", "name", "beginOn", "endOn");
+  }
 }
