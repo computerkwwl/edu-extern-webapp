@@ -140,8 +140,7 @@ public abstract class ExternBaseAction<ID extends Serializable, E extends Entity
   }
   
   public String remove() {
-    entityDao.remove(entityDao.get(entityType, getIds(entityName, idType)));
-    return redirect("search", "info.action.success");
+    return removeAndForward(entityDao.get(entityType, getIds(entityName, idType)));
   }
   
   /**
