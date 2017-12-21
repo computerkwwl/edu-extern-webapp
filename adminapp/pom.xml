@@ -36,5 +36,11 @@
       <artifactId>identificationapp-identification-web</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.openurp.edu.extern.identificationapp</groupId>
+      <artifactId>identificationapp-maintain</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 </project>

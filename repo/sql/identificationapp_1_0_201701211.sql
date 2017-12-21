@@ -60,11 +60,9 @@ create table edu_base.xb_extern_exam_times (
 ALTER TABLE edu_base.xb_extern_exam_times
     OWNER to openurp;
 
-create table edu_base.xb_certificates (
+
+create table edu_extern.certificates (
   id int8 PRIMARY KEY,
-  code varchar(50) NOT NULL,
-  name varchar(200) NOT NULL,
-  en_name varchar(100),
   type_id int8 NOT NULL,
   division_id int8,
   exam_time_id int8 NOT NULL,
@@ -76,8 +74,24 @@ create table edu_base.xb_certificates (
   FOREIGN KEY (exam_time_id) REFERENCES edu_base.xb_extern_exam_times (id)
 );
 
-ALTER TABLE edu_base.xb_certificates
+ALTER TABLE edu_extern.certificates
     OWNER to openurp;
+
+create table edu_extern.xb_exam_subject_settings (
+  id int8 PRIMARY KEY,
+  exam_subject_id int8 NOT NULL,
+  url varchar(300) NOT NULL,
+  keys varchar(200) NOT NULL,
+  begin_on date,
+  end_on date,
+  updated_at timestamp,
+  FOREIGN KEY (exam_subject_id) REFERENCES edu_base.xb_ext_exam_subjects (id)
+);
+
+ALTER TABLE edu_extern.xb_exam_subject_settings
+    OWNER to openurp;
+
+
 
 
 

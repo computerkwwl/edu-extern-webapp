@@ -33,7 +33,7 @@ public class CertificateTypeAction extends ExternBaseAction<Integer, Certificate
     builder.where(entityName + ".endOn is null or " + entityName + ".endOn >= :nowAt", nowAt);
   }
   
-  protected void extraEdit() {
+  protected void extraEdit(Integer id) {
     indexSetting();
   }
   

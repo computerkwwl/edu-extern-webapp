@@ -17,5 +17,6 @@
     <module>base</module>
     <module>grade</module>
     <module>identification</module>
+    <module>maintain</module>
   </modules>
 </project>

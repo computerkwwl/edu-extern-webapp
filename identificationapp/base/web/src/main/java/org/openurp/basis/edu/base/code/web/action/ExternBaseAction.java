@@ -101,11 +101,11 @@ public abstract class ExternBaseAction<ID extends Serializable, E extends Entity
     if (null != id) {
       put(entityName, entityDao.get(entityType, id));
     }
-    extraEdit();
+    extraEdit(id);
     return forward();
   }
   
-  protected void extraEdit() {
+  protected void extraEdit(ID id) {
     ;
   }
   
