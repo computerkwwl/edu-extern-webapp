@@ -35,7 +35,7 @@ public abstract class IdentificationAppIdentificateImporterListener<T extends En
     ;
   }
   
-  protected void settingPropertyExtraInEntity(T entity) {
+  protected void settingPropertyExtraInEntity(T entity) throws Exception {
     ;
   }
   

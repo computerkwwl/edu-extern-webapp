@@ -32,22 +32,11 @@ public class CertificateType extends Code<Integer> {
   @ManyToOne(fetch = FetchType.LAZY)
   private ExternExamSubject examSubject;
   
-  @ManyToOne(fetch = FetchType.LAZY)
-  private CertificateLevel level;
-  
   public ExternExamSubject getExamSubject() {
     return examSubject;
   }
   
   public void setExamSubject(ExternExamSubject examSubject) {
     this.examSubject = examSubject;
-  }
-  
-  public CertificateLevel getLevel() {
-    return level;
-  }
-  
-  public void setLevel(CertificateLevel level) {
-    this.level = level;
   }
 }

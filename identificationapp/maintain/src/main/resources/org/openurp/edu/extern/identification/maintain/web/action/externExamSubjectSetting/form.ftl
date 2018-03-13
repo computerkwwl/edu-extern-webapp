@@ -1,5 +1,6 @@
 [#ftl]
 [@b.head/]
+  [#include "const.ftl"/]
   [@b.toolbar title="证书大类数据来源配置维护"]
     bar.addBack();
   [/@]
@@ -12,7 +13,7 @@
         [#assign keysList =  keysList + [ { "id": key } ]/]
       [/#list]
     [/#if]
-    [@b.checkboxes label="关键字段" name="keys" items={ "examSubject": "考试科目", "level": "级别", "division": "报考省份", "examTime": "报考时间" } required="true" value=(keysList)! style="width:200px"/]
+    [@b.checkboxes label="关键字段" name="keys" items=inMap required="true" value=(keysList)! style="width:200px"/]
     [@b.datepicker id="beginOn" label="启用日期" name="setting.beginOn" value=(setting.beginOn?string('yyyy-MM-dd'))?default('') required="true" style="width:200px" format="yyyy-MM-dd" maxDate="#F{$dp.$D(\\'endOn\\')}"/]  
     [@b.datepicker id="endOn" label="截止日期" name="setting.endOn" value=(setting.endOn?string('yyyy-MM-dd'))?default('') style="width:200px" format="yyyy-MM-dd" minDate="#F{$dp.$D(\\'beginOn\\')}"/]
     [@b.formfoot]

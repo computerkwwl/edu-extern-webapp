@@ -7,8 +7,8 @@
       bar.addItem("${b.text("action.delete")}", action.remove("确认要删除吗？"));
       function importParam() {
         action.addParam("file", "template/excel/certificateTypeTemplate.xls");
-        action.addParam("display", "证书类型（证书名称/证书子类）导入模板");
-        action.addParam("importTitle", "证书类型（证书名称／证书子类）导入");
+        action.addParam("display", "证书子类／考试科目导入模板");
+        action.addParam("importTitle", "证书子类／考试科目导入");
       }
       var menuBar = bar.addMenu("导入", function() {
         importParam();
@@ -24,7 +24,6 @@
       [@b.col title="代码" property="code"/]
       [@b.col title="名称" property="name"/]
       [@b.col title="大类" property="examSubject.name"/]
-      [@b.col title="级别" property="level.name" width="150px"/]
       [@b.col title="启动日期" property="beginOn" width="100px"]${type.beginOn?string("yyyy-MM-dd")}[/@]
       [@b.col title="截止日期" property="endOn" width="100px"]${(type.endOn?string("yyyy-MM-dd"))!}[/@]
     [/@]

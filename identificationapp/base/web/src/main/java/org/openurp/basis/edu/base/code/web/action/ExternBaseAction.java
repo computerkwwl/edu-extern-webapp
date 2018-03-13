@@ -161,7 +161,6 @@ public abstract class ExternBaseAction<ID extends Serializable, E extends Entity
         return forward("/components/importData/result");
       }
     } catch (RuntimeException e) {
-      tr.addFailure(e.getMessage(), StringUtils.EMPTY);
       put("importResult", tr);
       return forward("/components/importData/error");
     }

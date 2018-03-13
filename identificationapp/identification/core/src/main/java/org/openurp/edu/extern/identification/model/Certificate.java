@@ -9,6 +9,7 @@ import javax.validation.constraints.NotNull;
 
 import org.openurp.base.model.NumberIdTimeObject;
 import org.openurp.code.geo.model.Division;
+import org.openurp.edu.base.code.model.CertificateLevel;
 import org.openurp.edu.base.code.model.CertificateType;
 import org.openurp.edu.base.code.model.ExternExamTime;
 
@@ -21,15 +22,25 @@ public class Certificate extends NumberIdTimeObject<Integer> {
   
   private static final long serialVersionUID = 3980122866996113913L;
   
-//  /** 学生 */
-//  @NotNull
-//  @ManyToOne(fetch = FetchType.LAZY)
-//  private Student std;
+  @NotNull
+  private String code;
+  
+  @NotNull
+  private String name;
+  
+  // /** 学生 */
+  // @NotNull
+  // @ManyToOne(fetch = FetchType.LAZY)
+  // private Student std;
   
   /** 证书类型（含级别） */
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private CertificateType type;
+  
+  /** 证书类型（含级别） */
+  @ManyToOne(fetch = FetchType.LAZY)
+  private CertificateLevel level;
   
   /** 报考省份 */
   @ManyToOne(fetch = FetchType.LAZY)
@@ -40,9 +51,9 @@ public class Certificate extends NumberIdTimeObject<Integer> {
   @ManyToOne(fetch = FetchType.LAZY)
   private ExternExamTime examTime;
   
-//  @OneToMany(mappedBy = "certificate", orphanRemoval = true)
-//  @Cascade(CascadeType.ALL)
-//  private List<CertificateCourseSubsitution> subsitions;
+  // @OneToMany(mappedBy = "certificate", orphanRemoval = true)
+  // @Cascade(CascadeType.ALL)
+  // private List<CertificateCourseSubsitution> subsitions;
   
   /** 生效时间 */
   @NotNull
@@ -51,12 +62,36 @@ public class Certificate extends NumberIdTimeObject<Integer> {
   /** 失效时间 */
   private Date endOn;
   
+  public String getCode() {
+    return code;
+  }
+  
+  public void setCode(String code) {
+    this.code = code;
+  }
+  
+  public String getName() {
+    return name;
+  }
+  
+  public void setName(String name) {
+    this.name = name;
+  }
+  
   public CertificateType getType() {
     return type;
   }
   
   public void setType(CertificateType type) {
     this.type = type;
+  }
+  
+  public CertificateLevel getLevel() {
+    return level;
+  }
+  
+  public void setLevel(CertificateLevel level) {
+    this.level = level;
   }
   
   public Division getDivision() {

@@ -1,6 +1,7 @@
 package org.openurp.edu.common.service;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.beangle.commons.collection.CollectUtils;
@@ -22,11 +23,13 @@ public abstract class IdentificationAppImporterListener<ID extends Serializable,
   
   protected final Logger logger = LoggerFactory.getLogger(getClass());
   
+  public static final String _CONFIRMS_ = "_confirms_";
+  
   protected EntityDao entityDao;
   
   protected ImporterValidity validaty;
   
-  private List<TransferMessage> tmpList;
+  private List<TransferMessage> tmpMsgList;
   
   private int errors = 0;
   
@@ -42,8 +45,8 @@ public abstract class IdentificationAppImporterListener<ID extends Serializable,
   @Override
   public final void onItemStart(TransferResult tr) {
     logger.debug(importer.getCurData().toString());
-    validaty = ImporterValidity.newInstance(tr, importer, entityDao);
-    tmpList = CollectUtils.newArrayList();
+    validaty = new  ImporterValidity(tr, importer, entityDao);
+    tmpMsgList = CollectUtils.newArrayList();
     errors = tr.errors();
     
     if (!beforeItemStart()) {
@@ -54,13 +57,12 @@ public abstract class IdentificationAppImporterListener<ID extends Serializable,
         }
         errMsg.append(msg.getMessage());
       }
-      tr.getErrs().clear();
       throw new IllegalImportFormatException(errMsg.toString());
     } else {
       itemStart();
       
       // 为了记数
-      tmpList.addAll(tr.getErrs());
+      tmpMsgList.addAll(tr.getErrs());
       tr.getErrs().clear();
       // 为了绕过转换
       importer.getCurData().clear();
@@ -69,11 +71,18 @@ public abstract class IdentificationAppImporterListener<ID extends Serializable,
   
   protected abstract boolean beforeItemStart();
   
+  protected void addConfirmEntity(E entity) {
+    if (!importer.getCurData().containsKey(_CONFIRMS_)) {
+      importer.getCurData().put(_CONFIRMS_, new ArrayList<E>());
+    }
+    validaty.getConfirmEntities().add(entity);
+  }
+  
   protected abstract void itemStart();
   
   @Override
   public final void onItemFinish(TransferResult tr) {
-    tr.getErrs().addAll(tmpList);
+    tr.getErrs().addAll(tmpMsgList);
     
     logger.debug(tr.errors() + "");
     if (!hasError()) {

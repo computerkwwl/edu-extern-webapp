@@ -4,7 +4,6 @@
 package org.openurp.basis.edu.base.code.service;
 
 import org.beangle.commons.dao.EntityDao;
-import org.openurp.edu.base.code.model.CertificateLevel;
 import org.openurp.edu.base.code.model.CertificateType;
 import org.openurp.edu.base.code.model.ExternExamSubject;
 import org.openurp.edu.common.utils.BeanUtils;
@@ -21,13 +20,11 @@ public class CertificateTypeImporter extends IdentificationAppBaseCodeImporterLi
   
   @Override
   protected boolean beforeItemStart() {
-    return validaty.checkTemplate("code", "name", "level.code", "examSubject.code", "beginOn", "endOn");
+    return validaty.checkTemplate("code", "name", "examSubject.code", "beginOn", "endOn");
   }
   
   protected void itemStartExtra() {
-    validaty.checkCode("level.code", "级别代码", CertificateLevel.class);
-    
-    if (null != importer.getCurData().get("CertificateType") || validaty.checkMustBe("examSubject.code", "证书大类代码")) {
+    if (validaty.checkMustBe("examSubject.code", "证书大类代码")) {
       validaty.checkCode("examSubject.code", "证书大类代码", ExternExamSubject.class);
     }
   }

@@ -6,6 +6,7 @@ import org.beangle.commons.dao.query.builder.OqlBuilder;
 import org.beangle.commons.transfer.importer.EntityImporter;
 import org.openurp.basis.edu.base.code.web.action.ExternBaseAction;
 import org.openurp.code.geo.model.Division;
+import org.openurp.edu.base.code.model.CertificateLevel;
 import org.openurp.edu.base.code.model.CertificateType;
 import org.openurp.edu.base.code.model.ExternExamSubject;
 import org.openurp.edu.base.code.model.ExternExamTime;
@@ -21,6 +22,7 @@ public class CertificateAction extends ExternBaseAction<Integer, Certificate> {
   protected void indexSetting() {
     put("subjects", codeService.getCodes(ExternExamSubject.class));
     put("types", codeService.getCodes(CertificateType.class));
+    put("levels", codeService.getCodes(CertificateLevel.class));
     put("divisions", entityDao.search(OqlBuilder.from(Division.class, "division").where("division.code like '__0000'").where("division.beginOn <= :now and (division.endOn is null or division.endOn >= :now)", new Date())));
     put("times", codeService.getCodes(ExternExamTime.class));
     // put("educations", codeService.getCodes(Education.class));
@@ -38,23 +40,25 @@ public class CertificateAction extends ExternBaseAction<Integer, Certificate> {
     indexSetting();
   }
   
-  public String checkAjax() {
+  public String loadCertTypesAjax() {
+    OqlBuilder<CertificateType> builder = OqlBuilder.from(CertificateType.class, "type");
+    builder.where("type.examSubject.id = :id", getInt("id"));
+    builder.where("type.beginOn <= :now");
+    builder.where("type.endOn is null or type.endOn >= :now", new Date());
+    put("certTypes", entityDao.search(builder));
+    
+    return forward();
+  }
+  
+  public String checkPrimaryAjax() {
     Integer id = getInt("id");
-    Integer typeId = getIntId("type");
-    Integer divisionId = getIntId("division");
-    Integer examTimeId = getIntId("examTime");
+    String code = get("code");
     
     OqlBuilder<Certificate> builder = OqlBuilder.from(entityType, entityName);
     if (null != id) {
       builder.where(entityName + ".id != :id", id);
     }
-    builder.where(entityName + ".type.id = :typeId", typeId);
-    if (null == divisionId) {
-      builder.where(entityName + ".division.id is null");
-    } else {
-      builder.where(entityName + ".division.id = :divisionId", divisionId);
-    }
-    builder.where(entityName + ".examTime.id = :examTimeId", examTimeId);
+    builder.where(entityName + ".code = :code", code);
     put("isOk", entityDao.search(builder).isEmpty());
     
     return forward();
