@@ -6,14 +6,15 @@
         bg.form.submit(document.searchForm, "${b.url("!search")}", "certScores");
       }, "backward.png");
   [/@]
+  [#include "/component/certificate/selector.ftl"/]
   [@b.form name="certScoreForm" action="!save" target="certScores" theme="list"]
     [#assign styleHTML = "width: 200px"/]
-    [#--FIXME 2018-03-08 zhouqi 下面的联动需要再研究一下--]
-    [@b.select label="大类" name="certScore.examSubject.id" items=examSubjects?sort_by(["code"]) required="true" value=(certScore.examSubject.id)! style=styleHTML/]
-    [@b.select label="科目/子类" name="certScore.certType.id" empty="全部"  value=(certScore.certType.id)! style=styleHTML comment="（数据来自“证书配置”）"/]
-    [@b.select label="级别" name="certScore.certLevel.id" empty="全部"  value=(certScore.certLevel.id)! style=styleHTML comment="（数据来自“证书配置”）"/]
-    [@b.select label="省份" name="certScore.division.id" option=r"${ item.code[0..1] + '-' + item.name }" empty="全国" value=(certScore.division.id)! style=styleHTML comment="（数据来自“证书配置”）"/]
-    [@b.select label="报考时间" name="certScore.examTime.id" empty="全部" value=(certScore.examTime.id)! style=styleHTML comment="（数据来自“证书配置”）"/]
+    [#assign examSubjectElement = { "name": "certScore.examSubject.id", "value": (certScore.examSubject.id)!, "required": "true" }/]
+    [#assign certTypeElement = { "name": "certScore.certType.id", "value": (certScore.certType.id)!, "empty": "全部", "comment": "（数据来自“证书配置”）" }/]
+    [#assign certLevelElement = { "name": "certScore.certLevel.id", "value": (certScore.certLevel.id)!, "empty": "全部", "comment": "（数据来自“证书配置”）" }/]
+    [#assign divisionElement = { "name": "certScore.division.id", "value": (certScore.division.id)!, "empty": "全国", "comment": "（数据来自“证书配置”）" }/]
+    [#assign examTimeElement = { "name": "certScore.examTime.id", "value": (certScore.examTime.id)!, "empty": "全部", "comment": "（数据来自“证书配置”）" }/]
+    [@certSelects "certScoreForm" examSubjectElement certTypeElement certLevelElement divisionElement examTimeElement styleHTML/]
     [@b.validity]
       function check() {
         var isOk = false;
@@ -59,24 +60,52 @@
         return check();
       }, "当前的配置数据已存在！！！");
     [/@]
-    [@b.textfield label="本校得分" name="certScore.score" value=(certScore.score?string("0.#"))! required="true" maxlength="10" check="match('number')" comment="说明：具体分值。比如：85。" style=styleHTML/]
-    [@b.textfield label="得分显示" name="certScore.scoreValue" value=(certScore.scoreValue)! maxlength="50" comment="说明：本校得分的含义。若不填，则“提交”时取默认值“本校得分”。比如，优，A+，合格……" style=styleHTML/]
-    [#--FIXME 2018-03-06 zhouqi 考虑是否要在提交前加入对应的课程，可能需要使用colorbox来实现--]
-    [#--
-    [@b.select label="可替课程" name="courseIds" items=(certScore.courses)![] required="true" multiple="true" style=styleHTML/]
-    --]
+    [#--FIXME 2018-04-01 zhouqi 验证和历史数据还未放置--]
     [@b.field label="可替课程" required="true"]
-      <select id="courseIds" multiple="true" style="${styleHTML}">
-        [#assign courseIds = ""/]
-        [#list (certScore.courses)! as course]
-        <option value="${course.id}" selected>${course.name}(${course.code})</option>
-          [#assign courseIds = courseIds + (courseIds?length == 0)?string("", ",") + course.id/]
-        [/#list]
-      </select>
-      <input id="courseIds_" type="hidden" name="courseIds" title="可替课程" value="${courseIds}"/>
+[#assign courseIds = ""/]
+[#assign tbody]
+                [#list (certScore.courses)! as csCourse]
+                <tr class="${(csCourse_index % 2 == 0)?string("griddata-even", "griddata-odd")}">
+                  <td>${csCourse.course.code}<input type="hidden" name="csCourse${csCourse_index + k}.course.id" value="${csCourse.course.id}"/></td>
+                  <td>${csCourse.course.name}</td>
+                  <td>${csCourse.course.credits}</td>
+                  <td><input id="csCourse${csCourse_index + k}_score" type="text" name="csCourse${csCourse_index + k}.score" value="${(csCourse.score?string("#.####"))!}" maxlength="5" style="width: 50px; text-align: center"/>（<input id="csCourse${csCourse_index + k}_scoreValue" type="text" name="csCourse${csCourse_index + k}.scoreValue" value="${(csCourse.scoreValue)!}" maxlength="10" style="width: 50px; text-align: center"/>）</td>
+                  <td><button id="btnRemoveCourse" type="button">删除</button><input type="hidden" name="csCourse${csCourse_index + k}.id" value="${(csCourse.id)!}"/></td>
+                </tr>
+                  [#assign courseIds = courseIds + (courseIds?length != 0)?string(",", "") + csCourse.course.id/]
+                [/#list]
+[/#assign]
+      <table width="80%" cellspacing="0" cellpadding="0">
+        <tr>
+          <td><button id="btnAddCourse" type="button">添加</button><input id="courseIds_" type="hidden" name="courseIds" title="可替课程" value="${(courseIds)!}"/></td>
+        </tr>
+        <tr>
+          <td style="padding-top: 5px; padding-bottom: 5px"><span style="color: blue">说明：如果勿“删除”了已保存的“可替课程”数据，在还未提交前，再添加该“可替课程”数据恢复，或点击右上角的“返回”取消本次配置。</span></td>
+        </tr>
+        <tr>
+          <td>
+            <table class="gridtable">
+              <thead class="gridhead">
+                <th width="100px">课程代码</th>
+                <th width="200px">课程名称</th>
+                <th width="50px">学分</th>
+                <th>本校得分（显示）</th>
+                <th width="100px">操作</th>
+              </thead>
+              <tbody>
+${tbody}
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </table>
     [/@]
     [@b.validity]
-      $("[name=courseIds]", document.certScoreForm).require().match("notBlank");
+      $("[name=courseIds]", document.certScoreForm).require("请至少添加一门可替课程").match("notBlank");
+      
+      if (csCoursesValidity) {
+        csCoursesValidity();
+      }
     [/@]
     [@b.datepicker id="beginOn" label="启用日期" name="certScore.beginOn" value=(certScore.beginOn?string('yyyy-MM-dd'))?default('') required="true" style="width:200px" format="yyyy-MM-dd" maxDate="#F{$dp.$D(\\'endOn\\')}"/]  
     [@b.datepicker id="endOn" label="截止日期" name="certScore.endOn" value=(certScore.endOn?string('yyyy-MM-dd'))?default('') style="width:200px" format="yyyy-MM-dd" minDate="#F{$dp.$D(\\'beginOn\\')}"/]
@@ -90,175 +119,77 @@
       $(document).ready(function() {
         var form = document.certScoreForm;
         
-        var examSubject = form["certScore.examSubject.id"];
-        var certType = form["certScore.certType.id"];
-        var certLevel = form["certScore.certLevel.id"];
-        var division = form["certScore.division.id"];
-        var examTime = form["certScore.examTime.id"];
+        var btnAddCourse = $("button#btnAddCourse");
         
-        var certTypeId = certType.value;
-        var certLevelId = certLevel.value;
-        var divisionId = division.value;
-        var examTimeId = examTime.value;
-        
-        $(examSubject).change(function() {
-          $(certType).empty();
-          $(certLevel).empty();
-          $(division).empty();
-          $(examTime).empty();
+        btnAddCourse.click(function() {
+          var paramDataMap = {};
+          paramDataMap.id = form["certScore.id"].value;
+          paramDataMap.courseIds = form["courseIds"].value;
           
-          $.ajax({
-            "type": "POST",
-            "url": "${b.url("!dataAjax")}",
-            "async": false,
-            "dataType": "json",
-            "data": {
-              "from": "examSubject",
-              "examSubjectId": $(this).val()
-            },
-            "success": function(data) {
-              $(certType).append(data.certTypeOptions);
-              $(certLevel).append(data.certLevelOptions);
-              $(division).append(data.divisionOptions);
-              $(examTime).append(data.examTimeOptions);
-              
-              if (certTypeId) {
-                $(certType).val(certTypeId);
-                
-                certTypeId = null;
-              }
-              
-              if (certLevelId) {
-                $(certLevel).change();
-                $(certLevel).val(certLevelId);
-                
-                certLevelId = null;
-                return;
-              }
-              if (divisionId) {
-                $(division).change();
-                $(division).val(divisionId);
-                
-                divisionId = null;
-                return;
-              }
-              if (examTimeId) {
-                $(examTime).val(examTimeId);
-                examTimeId = null;
-              }
-            }
+          $(this).colorbox({
+            "transition": "none",
+            "title": "添加选择可选择的可替课程",
+            "overlayClose": false,
+            "speed": 0,
+            "width": "800px",
+            "height": "600px",
+            "href": "${base}/identification/code/cert-score!coursesAjax.action",
+            "data": paramDataMap
           });
         });
         
-        $(certType).change(function() {
-          $(certLevel).empty();
-          $(division).empty();
-          $(examTime).empty();
-          
-          $.ajax({
-            "type": "POST",
-            "url": "${b.url("!dataAjax")}",
-            "async": false,
-            "dataType": "json",
-            "data": {
-              "from": "certType",
-              "examSubjectId": $(examSubject).val(),
-              "certTypeId": $(this).val()
-            },
-            "success": function(data) {
-              $(certLevel).append(data.certLevelOptions);
-              $(division).append(data.divisionOptions);
-              $(examTime).append(data.examTimeOptions);
-              
-              $(certLevel).val(certLevelId);
-              
-              certLevelId = null;
-              
-              if (divisionId) {
-                $(division).change();
-                $(division).val(divisionId);
-                
-                divisionId = null;
-                return;
-              }
-              if (examTimeId) {
-                $(examTime).val(examTimeId);
-                examTimeId = null;
+        window.btnAddCourse = btnAddCourse;
+        window.loadBtnRemoveEvent = loadBtnRemoveEvent;
+        form.onsubmit = function() {
+          var rs = onsubmitcertScoreForm();
+          if (rs) {
+            var courseIds = form["courseIds"].value.replace(/\s/mg, "").split(",");
+            for (var i = 0; i < courseIds.length; i++) {
+              if (!form["csCourse" + i + ".scoreValue"].value.replace(/\s/mg, "")) {
+                form["csCourse" + i + ".scoreValue"].value = form["csCourse" + i + ".score"].value;
               }
             }
-          });
-        });
+          } else {
+            $(".error[for$=scoreValue]").each(function() {
+              $(this).appendTo($(this).parent());
+            });
+          }
+          return rs;
+        };
         
-        $(certLevel).change(function() {
-          $(division).empty();
-          $(examTime).empty();
-          
-          $.ajax({
-            "type": "POST",
-            "url": "${b.url("!dataAjax")}",
-            "async": false,
-            "dataType": "json",
-            "data": {
-              "from": "certLevel",
-              "examSubjectId": $(examSubject).val(),
-              "certTypeId": $(certType).val(),
-              "certLevelId": $(this).val()
-            },
-            "success": function(data) {
-              $(division).append(data.divisionOptions);
-              $(examTime).append(data.examTimeOptions);
-              
-              $(division).val(divisionId);
-              
-              divisionId = null;
-              
-              if (examTimeId) {
-                $(examTime).val(examTimeId);
-                examTimeId = null;
-              }
-            }
-          });
-        });
-        
-        $(division).change(function() {
-          $(examTime).empty();
-          
-          console.log(examTimeId);
-          
-          $.ajax({
-            "type": "POST",
-            "url": "${b.url("!dataAjax")}",
-            "async": false,
-            "dataType": "html",
-            "data": {
-              "from": "division",
-              "examSubjectId": $(examSubject).val(),
-              "certTypeId": $(certType).val(),
-              "certLevelId": $(certLevel).val(),
-              "divisionId": $(this).val()
-            },
-            "success": function(data) {
-              $(examTime).append(data);
-            }
-          });
-        });
-        
-        $(examSubject).change();
-        
-        $("#courseIds", form).children().attr("selected", "");
-        
-        $("#courseIds", form).ajaxChosen({
-          "method": "GET",
-          "url": "${b.url("!coursesAjax?pageNo=1&pageSize=10")}",
-          "dataType": "json"
-        }, function(data) {
-          return data.courses;
-        });
-        
-        $("#courseIds", form).change(function() {
-          $(form["courseIds"]).val($(this).val());
-        });
+        loadBtnRemoveEvent();
       });
+      
+      [#--在ajax的过程中会调用--]
+      function loadBtnRemoveEvent() {
+        $("button#btnRemoveCourse").click(function() {
+          if (confirm("要删除第 " + ($(this).parent().parent().index() + 1) + " 行“可替课程”配置数据吗？")) {
+            $(this).parent().parent().remove();
+            
+            [#--重序“可替课程”的表单name--]
+            var tbodyObj = btnAddCourse.parent().parent().parent().find("table").find("tbody");
+            var i = 0;
+            
+            var courseIds = "";
+            tbodyObj.children().each(function(r, trObj) {
+              $(trObj).attr("class", (i % 2 == 0 ? "griddata-even" : "griddata-odd"));
+              
+              $(trObj).find("input").each(function(d, inputObj) {
+                var name = $(inputObj).attr("name");
+                var nameSections = name.split(".");
+                nameSections[0] = "csCourse" + i;
+                name = nameSections.join(".");
+                $(inputObj).attr("name", name);
+                if ("course" == nameSections[1]) {
+                  courseIds += (courseIds.length > 0 ? "," : "") + document.certScoreForm[name].value;
+                }
+              });
+              i++;
+            });
+            document.certScoreForm["courseIds"].value = courseIds;
+          }
+        });
+      }
     });
   </script>
 [@b.foot/]

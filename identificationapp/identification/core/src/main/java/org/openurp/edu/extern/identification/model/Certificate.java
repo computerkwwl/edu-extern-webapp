@@ -28,11 +28,6 @@ public class Certificate extends NumberIdTimeObject<Integer> {
   @NotNull
   private String name;
   
-  // /** 学生 */
-  // @NotNull
-  // @ManyToOne(fetch = FetchType.LAZY)
-  // private Student std;
-  
   /** 证书类型（含级别） */
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
@@ -50,10 +45,6 @@ public class Certificate extends NumberIdTimeObject<Integer> {
   @NotNull
   @ManyToOne(fetch = FetchType.LAZY)
   private ExternExamTime examTime;
-  
-  // @OneToMany(mappedBy = "certificate", orphanRemoval = true)
-  // @Cascade(CascadeType.ALL)
-  // private List<CertificateCourseSubsitution> subsitions;
   
   /** 生效时间 */
   @NotNull

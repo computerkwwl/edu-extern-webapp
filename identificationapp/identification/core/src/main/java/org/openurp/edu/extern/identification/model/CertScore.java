@@ -18,7 +18,6 @@ import org.openurp.edu.base.code.model.CertificateLevel;
 import org.openurp.edu.base.code.model.CertificateType;
 import org.openurp.edu.base.code.model.ExternExamSubject;
 import org.openurp.edu.base.code.model.ExternExamTime;
-import org.openurp.edu.base.model.Course;
 
 /**
  * 证书在我校中认定的成绩配置
@@ -47,15 +46,9 @@ public class CertScore extends NumberIdTimeObject<Integer> {
   @ManyToOne(fetch = FetchType.LAZY)
   private ExternExamTime examTime;
   
-  @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
+  @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true, mappedBy = "certScore")
   @Cascade(CascadeType.ALL)
-  private List<Course> courses;
-  
-  @NotNull
-  private Float score;
-  
-  @NotNull
-  private String scoreValue;
+  private List<CertScoreCourse> courses;
   
   /** 生效时间 */
   @NotNull
@@ -104,7 +97,7 @@ public class CertScore extends NumberIdTimeObject<Integer> {
     this.examTime = examTime;
   }
   
-  public List<Course> getCourses() {
+  public List<CertScoreCourse> getCourses() {
     return courses;
   }
   
@@ -114,31 +107,22 @@ public class CertScore extends NumberIdTimeObject<Integer> {
     }
   }
   
-  public void addCourses(List<Course> courses) {
+  public void addCourse(CertScoreCourse course) {
     if (null == this.courses) {
       this.courses = CollectUtils.newArrayList();
     }
-    this.courses.addAll(courses);
+    course.setCertScore(this);
+    this.courses.add(course);
   }
   
-  public void setCourses(List<Course> courses) {
+  public void addCourses(List<CertScoreCourse> courses) {
+    for (CertScoreCourse csCourse : courses) {
+      addCourse(csCourse);
+    }
+  }
+  
+  public void setCourses(List<CertScoreCourse> courses) {
     this.courses = courses;
-  }
-  
-  public Float getScore() {
-    return score;
-  }
-  
-  public void setScore(Float score) {
-    this.score = score;
-  }
-  
-  public String getScoreValue() {
-    return scoreValue;
-  }
-  
-  public void setScoreValue(String scoreValue) {
-    this.scoreValue = scoreValue;
   }
   
   public Date getBeginOn() {

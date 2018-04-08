@@ -25,9 +25,6 @@ public class CertificateAction extends ExternBaseAction<Integer, Certificate> {
     put("levels", codeService.getCodes(CertificateLevel.class));
     put("divisions", entityDao.search(OqlBuilder.from(Division.class, "division").where("division.code like '__0000'").where("division.beginOn <= :now and (division.endOn is null or division.endOn >= :now)", new Date())));
     put("times", codeService.getCodes(ExternExamTime.class));
-    // put("educations", codeService.getCodes(Education.class));
-    // put("stdTypes", codeService.getCodes(StdType.class));
-    // put("departments", entityDao.getAll(Department.class));
   }
   
   protected void settingOtherInSearch(OqlBuilder<Certificate> builder) {

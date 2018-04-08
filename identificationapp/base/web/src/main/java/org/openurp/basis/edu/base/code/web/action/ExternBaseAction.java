@@ -60,6 +60,10 @@ public abstract class ExternBaseAction<ID extends Serializable, E extends Entity
     }
   }
   
+  protected String getEntityName() {
+    return entityType.getName();
+  }
+  
   public String downloadTemplate() {
     return forward(new Action(StaticfileAction.class, "index"));
   }
