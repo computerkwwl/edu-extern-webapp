@@ -1,9 +1,13 @@
 package org.openurp.edu.extern.identification.maintain.web.action;
 
-import org.apache.commons.lang.StringUtils;
+import java.util.List;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.beangle.commons.dao.query.builder.OqlBuilder;
 import org.openurp.basis.edu.base.code.web.action.ExternBaseAction;
 import org.openurp.edu.base.code.model.ExternExamSubject;
+import org.openurp.edu.extern.IdentificationConst;
+import org.openurp.edu.extern.identification.model.ExternExamSubjectField;
 import org.openurp.edu.extern.identification.model.ExternExamSubjectSetting;
 
 /**
@@ -20,11 +24,21 @@ public class ExternExamSubjectSettingAction extends ExternBaseAction<Integer, Ex
     put("examSubjects", codeService.getCodes(ExternExamSubject.class));
   }
   
+  @Override
+  protected void otherSomethingInSearch() {
+    put("fixedRequestFieldMap", IdentificationConst.fixedRequestFieldMap);
+    put("fixedResponseFieldMap", IdentificationConst.fixedResponseFieldMap);
+  }
+  
   protected void extraEdit(Integer id) {
     put("examSubjects", entityDao.search(OqlBuilder.from(ExternExamSubject.class, "examSubject").where("not exists (from "
         + entityType.getName()
         + " setting where setting.examSubject = examSubject and "
         + (null == id ? "1 = 1" : "setting.id != :settingId") + ")", id)));
+    
+    put("fields", entityDao.get(ExternExamSubjectField.class, "innerField", IdentificationConst.innerFields));
+    put("fixedRequestFields", IdentificationConst.fixedRequestFields);
+    put("fixedResponseFields", IdentificationConst.fixedResponseFields);
   }
   
   public String checkAjax() {
@@ -41,7 +55,23 @@ public class ExternExamSubjectSettingAction extends ExternBaseAction<Integer, Ex
     return forward();
   }
   
-  public void beforeSave(ExternExamSubjectSetting setting) {
-    setting.setKeys(StringUtils.join(getAll("keys", String.class), ","));
+  public boolean beforeSave(ExternExamSubjectSetting setting) {
+    // FIXME 2018-05-18 zhouqi 严格来说，在这里后台，也应该验证判空，但目前由于初版，暂且缓缓。日后一定要补上。
+    setting.getRequestFields().clear();
+    setting.getRequestFields().addAll(entityDao.get(ExternExamSubjectField.class, getIntIds("requestField")));
+    setting.getResponseFields().clear();
+    setting.getResponseFields().addAll(entityDao.get(ExternExamSubjectField.class, getIntIds("responseField")));
+    
+    List<ExternExamSubjectField> requestFields = entityDao.get(ExternExamSubjectField.class, "innerField", IdentificationConst.fixedRequestFields);
+    List<ExternExamSubjectField> responseFields = entityDao.get(ExternExamSubjectField.class, "innerField", IdentificationConst.fixedResponseFields);
+    
+    if (CollectionUtils.isEmpty(requestFields) || CollectionUtils.isEmpty(responseFields)) {
+      return false;
+    }
+    
+    setting.getRequestFields().addAll(requestFields);
+    setting.getResponseFields().addAll(responseFields);
+    
+    return true;
   }
 }

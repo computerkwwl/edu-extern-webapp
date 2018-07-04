@@ -1,7 +1,8 @@
 package org.openurp.edu.extern.identification.code.web.action;
 
 import java.io.Serializable;
-import java.util.Date;
+import java.sql.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,15 +25,19 @@ import org.openurp.edu.extern.identification.model.Certificate;
  */
 public abstract class CertificationSupportAction<ID extends Serializable, E extends Entity<ID>> extends ExternBaseAction<ID, E> {
   
-  private final String EXAM_SUBJECT = "examSubject";
+  protected final String EXAM_SUBJECT = "examSubject";
   
-  private final String CERT_TYPE = "certType";
+  protected final String CERT_TYPE = "certType";
   
-  private final String CERT_LEVEL = "certLevel";
+  protected final String CERT_LEVEL = "certLevel";
   
-  private final String DIVISION = "division";
+  protected final String DIVISION = "division";
+  
+  protected final String EXAM_TIME = "examTime";
   
   private final Map<String, Integer> dataFromMap = initDataFromMap();
+  
+  private final Map<String, String> fieldFromMap = initFieldFromMap();
   
   private Map<String, Integer> initDataFromMap() {
     Map<String, Integer> map = CollectUtils.newHashMap();
@@ -40,6 +45,16 @@ public abstract class CertificationSupportAction<ID extends Serializable, E exte
     map.put(CERT_TYPE, 2);
     map.put(CERT_LEVEL, 3);
     map.put(DIVISION, 4);
+    map.put(EXAM_TIME, 5);
+    return map;
+  }
+  
+  private Map<String, String> initFieldFromMap() {
+    Map<String, String> map = CollectUtils.newHashMap();
+    map.put(CERT_TYPE, "type");
+    map.put(CERT_LEVEL, "level");
+    map.put(DIVISION, DIVISION);
+    map.put(EXAM_TIME, EXAM_TIME);
     return map;
   }
   
@@ -51,14 +66,30 @@ public abstract class CertificationSupportAction<ID extends Serializable, E exte
     indexSetting();
   }
   
-  public String dataAjax() {
+  public final String dataAjax() {
     String from = get("from");
     
+    loadData(from);
+    
+    switch (dataFromMap.get(from)) {
+      case 1:
+        return "/component/certificate/dataFromExamSubjectAjax";
+      case 2:
+        return "/component/certificate/dataFromCertTypeAjax";
+      case 3:
+        return "/component/certificate/dataFromCertLevelAjax";
+      default:
+        return "/component/certificate/dataFromDivsionAjax";
+    }
+  }
+  
+  protected final void loadData(String from) {
     Integer examSubjectId = getIntId("examSubject");
     Integer certTypeId = getIntId("certType");
     Integer certLevelId = getIntId("certLevel");
     Integer divisionId = getIntId("division");
     
+    Date now = new Date(System.currentTimeMillis());
     switch (dataFromMap.get(from)) {
       case 1: {
         OqlBuilder<CertificateType> builder = OqlBuilder.from(CertificateType.class, "certType");
@@ -71,8 +102,8 @@ public abstract class CertificationSupportAction<ID extends Serializable, E exte
           where.append(")");
           builder.where(where.toString(), examSubjectId);
         }
-        builder.where("certType.beginOn <= :now");
-        builder.where("certType.endOn is null or certType.endOn >= :now", new Date());
+        builder.where("certType.beginOn <= :now", now);
+        builder.where("certType.endOn is null or certType.endOn >= :now", now);
         put("certTypes", entityDao.search(builder));
       }
       case 2: {
@@ -92,8 +123,8 @@ public abstract class CertificationSupportAction<ID extends Serializable, E exte
         } else {
           builder.where(where.toString(), certTypeId);
         }
-        builder.where("certLevel.beginOn <= :now");
-        builder.where("certLevel.endOn is null or certLevel.endOn >= :now", new Date());
+        builder.where("certLevel.beginOn <= :now", now);
+        builder.where("certLevel.endOn is null or certLevel.endOn >= :now", now);
         List<CertificateLevel> certLevels = entityDao.search(builder);
         if (CollectionUtils.isEmpty(certLevels)) {
           certLevels = codeService.getCodes(CertificateLevel.class);
@@ -122,11 +153,11 @@ public abstract class CertificationSupportAction<ID extends Serializable, E exte
         condition.params(params);
         builder.where(condition);
         builder.where("division.code like '__0000'");
-        builder.where("division.beginOn <= :now");
-        builder.where("division.endOn is null or division.endOn >= :now", new Date());
+        builder.where("division.beginOn <= :now", now);
+        builder.where("division.endOn is null or division.endOn >= :now", now);
         List<Division> divisions = entityDao.search(builder);
         if (CollectionUtils.isEmpty(divisions)) {
-          divisions = entityDao.search(OqlBuilder.from(Division.class, "division").where("division.code like '__0000'").where("division.beginOn <= :now and (division.endOn is null or division.endOn >= :now)", new Date()));
+          divisions = entityDao.search(OqlBuilder.from(Division.class, "division").where("division.code like '__0000'").where("division.beginOn <= :now and (division.endOn is null or division.endOn >= :now)", now));
         }
         put("divisions", divisions);
       }
@@ -155,8 +186,8 @@ public abstract class CertificationSupportAction<ID extends Serializable, E exte
         Condition condition = new Condition(where.toString());
         condition.params(params);
         builder.where(condition);
-        builder.where("examTime.beginOn <= :now");
-        builder.where("examTime.endOn is null or examTime.endOn >= :now", new Date());
+        builder.where("examTime.beginOn <= :now", now);
+        builder.where("examTime.endOn is null or examTime.endOn >= :now", now);
         List<ExternExamTime> examTimes = entityDao.search(builder);
         if (CollectionUtils.isEmpty(examTimes)) {
           examTimes = codeService.getCodes(ExternExamTime.class);
@@ -164,16 +195,13 @@ public abstract class CertificationSupportAction<ID extends Serializable, E exte
         put("examTimes", examTimes);
       }
     }
-    
-    switch (dataFromMap.get(from)) {
-      case 1:
-        return "/component/certificate/dataFromExamSubjectAjax";
-      case 2:
-        return "/component/certificate/dataFromCertTypeAjax";
-      case 3:
-        return "/component/certificate/dataFromCertLevelAjax";
-      default:
-        return "/component/certificate/dataFromDivsionAjax";
-    }
+  }
+  
+  public Map<String, Integer> getDataFromMap() {
+    return new HashMap<String, Integer>(dataFromMap);
+  }
+  
+  public Map<String, String> getFieldFromMap() {
+    return new HashMap<String, String>(fieldFromMap);
   }
 }

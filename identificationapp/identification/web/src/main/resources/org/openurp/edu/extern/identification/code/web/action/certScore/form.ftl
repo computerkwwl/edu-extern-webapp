@@ -60,7 +60,6 @@
         return check();
       }, "当前的配置数据已存在！！！");
     [/@]
-    [#--FIXME 2018-04-01 zhouqi 验证和历史数据还未放置--]
     [@b.field label="可替课程" required="true"]
 [#assign courseIds = ""/]
 [#assign tbody]

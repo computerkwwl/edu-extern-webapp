@@ -1,19 +1,21 @@
 [#ftl]
 [@b.head/]
-  [#include "const.ftl"/]
+  <style>
+    input[type=checkbox] {
+      vertical-align: middle;
+    }
+  </style>
+  [#include "/component/certificate/const.ftl"/]
   [@b.toolbar title="证书大类数据来源配置维护"]
-    bar.addBack();
+    bar.addItem("返回", function() {
+      bg.form.submit(document.searchForm, "${b.url("!search")}", "settings");
+    }, "backward.png");
   [/@]
   [@b.form name="settingForm" action="!save" target="settings" theme="list"]
     [@b.select label="证书大类" name="setting.examSubject.id" items=examSubjects?sort_by(["code"]) required="true" value=(setting.examSubject.id)! style="width:200px"/]
-    [@b.textfield label="数据来源URL" name="setting.url" value=(setting.url)! required="true" maxlength="280" style="width:200px"/]
-    [#if (setting.keys)??]
-      [#assign keysList = []/]
-      [#list setting.keys?split(",") as key]
-        [#assign keysList =  keysList + [ { "id": key } ]/]
-      [/#list]
-    [/#if]
-    [@b.checkboxes label="关键字段" name="keys" items=inMap required="true" value=(keysList)! style="width:200px"/]
+    [@b.textfield label="数据来源URL" name="setting.url" value=(setting.url)! required="true" maxlength="280" style="width:500px"/]
+    [@b.checkboxes label="请求字段" name="requestFieldIds" items=fields?sort_by(["name"]) valueName="label" required="true" value=(setting.requestFields)!/]
+    [@b.checkboxes label="反馈字段" name="responseFieldIds" items=fields?sort_by(["name"]) valueName="label" required="true" value=(setting.responseFields)!/]
     [@b.datepicker id="beginOn" label="启用日期" name="setting.beginOn" value=(setting.beginOn?string('yyyy-MM-dd'))?default('') required="true" style="width:200px" format="yyyy-MM-dd" maxDate="#F{$dp.$D(\\'endOn\\')}"/]  
     [@b.datepicker id="endOn" label="截止日期" name="setting.endOn" value=(setting.endOn?string('yyyy-MM-dd'))?default('') style="width:200px" format="yyyy-MM-dd" minDate="#F{$dp.$D(\\'beginOn\\')}"/]
     [@b.formfoot]
@@ -21,4 +23,52 @@
       [@b.submit value="提交"/]
     [/@]
   [/@]
+  <script>
+    $(function() {
+      var outerFieldMap = {};
+      [#list fields as field]
+      outerFieldMap["${field.id}"] = "${field.outerField}";
+      [/#list]
+      
+      function loadClick(name) {
+        $("[name=" + name + "]").click(function() {
+          var currIndex = $(this).index();
+          var currValue = this.value;
+          var aa = $("[name=" + name + "]:checked").each(function() {
+            [#--
+            console.log("index: " + currIndex + "/" + $(this).index());
+            console.log("value: " + currValue + "/" + this.value);
+            console.log(outerFieldMap[this.value] == outerFieldMap[currValue] && $(this).index() != currIndex);
+            --]
+            if (outerFieldMap[this.value] == outerFieldMap[currValue] && $(this).index() != currIndex) {
+              this.checked = false;
+              return false;
+            }
+          });
+        });
+      }
+      
+      function settingMustBe(name, value, color) {
+        var childObj = $("[name=" + name + "][value=" + value + "]");
+        childObj.next().css("color", color);
+        
+        var spanObj = $("<span>");
+        spanObj.text("√");
+        spanObj.css("color", color);
+        spanObj.insertBefore(childObj);
+        
+        childObj.remove();
+      }
+      
+      $(document).ready(function() {
+        var form = document.settingForm;
+        
+        loadClick("requestFieldIds");
+        loadClick("responseFieldIds");
+        
+        [#list fields as field][#if fixedRequestFields?seq_contains(field.innerField)]settingMustBe("requestFieldIds", "${field.id}", "red");[/#if][/#list]
+        [#list fields as field][#if fixedResponseFields?seq_contains(field.innerField)]settingMustBe("responseFieldIds", "${field.id}", "blue");[/#if][/#list]
+      });
+    });
+  </script>
 [@b.foot/]

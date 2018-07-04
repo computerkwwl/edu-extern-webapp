@@ -1,6 +1,6 @@
 package org.openurp.edu.extern.identification.code.web.action;
 
-import java.util.Date;
+import java.sql.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -26,8 +26,9 @@ public class CertScoreAction extends CertificationSupportAction<Integer, CertSco
     if (ArrayUtils.isNotEmpty(ids)) {
       builder.where("course.id not in (:ids)", ids);
     }
-    builder.where("course.beginOn <= :now");
-    builder.where("course.endOn is null or course.endOn >= :now", new Date());
+    Date now = new Date(System.currentTimeMillis());
+    builder.where("course.beginOn <= :now", now);
+    builder.where("course.endOn is null or course.endOn >= :now", now);
     String orderBy = get("orderBy");
     if (StringUtils.isBlank(orderBy)) {
       orderBy = "course.id";
@@ -89,7 +90,7 @@ public class CertScoreAction extends CertificationSupportAction<Integer, CertSco
     return forward();
   }
   
-  protected void beforeSave(CertScore certScore) {
+  protected boolean beforeSave(CertScore certScore) {
     Long[] courseIds = getLongIds("course");
     
     certScore.clearCourses();
@@ -97,6 +98,6 @@ public class CertScoreAction extends CertificationSupportAction<Integer, CertSco
       certScore.addCourse(populateEntity(CertScoreCourse.class, "csCourse" + i));
     }
     
-    super.beforeSave(certScore);
+    return super.beforeSave(certScore);
   }
 }

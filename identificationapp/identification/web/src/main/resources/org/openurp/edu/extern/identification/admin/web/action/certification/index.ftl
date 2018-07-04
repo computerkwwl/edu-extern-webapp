@@ -1,6 +1,6 @@
 [#ftl]
 [@b.head/]
-  [@b.toolbar title="学生证书管理"/]
+  [@b.toolbar title="学生证书申请及分配管理"/]
   [#include "/component/certificate/selector.ftl"/]
   <table class="indexpanel">
     <tr>

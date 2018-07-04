@@ -5,7 +5,13 @@
       font-family: 宋体;
     }
   </style>
-  [@b.toolbar title="证书大类数据来源配置"/]
+  [@b.toolbar title="证书大类数据来源配置"]
+    bar.addItem("字段配置", function() {
+      bg.Go("${b.url("extern-exam-subject-field")}", "main");
+    }, "update.png");
+  [/@]
+  [#include "/component/certificate/const.ftl"/]
+  ${MUST_BE_INNER_FIELD_COMMENT}
   <table class="indexpanel">
     <tr>
       <td class="index_view" style="width: 180px">

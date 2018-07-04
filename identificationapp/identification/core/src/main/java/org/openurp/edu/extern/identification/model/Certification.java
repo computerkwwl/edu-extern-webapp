@@ -1,12 +1,17 @@
 package org.openurp.edu.extern.identification.model;
 
 import java.util.Date;
+import java.util.List;
 
+import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 
 import org.beangle.commons.entity.pojo.NumberIdObject;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.openurp.edu.base.model.Student;
 
 /**
@@ -15,6 +20,7 @@ import org.openurp.edu.base.model.Student;
  * @author zhouqi 2018年3月14日
  *
  */
+@Entity(name = "org.openurp.edu.extern.identification.model.Certification")
 public class Certification extends NumberIdObject<Integer> {
   
   private static final long serialVersionUID = 1056722418216651938L;
@@ -27,21 +33,26 @@ public class Certification extends NumberIdObject<Integer> {
   @ManyToOne(fetch = FetchType.LAZY)
   private Certificate certificate;
   
+  /** 所获证书编号 */
+  private String code;
+  
+  /** 所获证书的成绩 */
+  @NotNull
+  private String score;
+  
   @NotNull
   private String happenBy;
   
   @NotNull
   private Date happenAt;
   
-  private Boolean passed;
+  @OneToMany(fetch = FetchType.LAZY, orphanRemoval = true)
+  @Cascade(CascadeType.ALL)
+  private List<CertificationCourse> courses;
   
-  private Float score;
+  private String lastBy;
   
-  private String scoreValue;
-  
-  private String passBy;
-  
-  private Date passAt;
+  private Date lastAt;
   
   public Student getStd() {
     return std;
@@ -57,6 +68,22 @@ public class Certification extends NumberIdObject<Integer> {
   
   public void setCertificate(Certificate certificate) {
     this.certificate = certificate;
+  }
+  
+  public String getCode() {
+    return code;
+  }
+  
+  public void setCode(String code) {
+    this.code = code;
+  }
+  
+  public String getScore() {
+    return score;
+  }
+  
+  public void setScore(String score) {
+    this.score = score;
   }
   
   public String getHappenBy() {
@@ -75,43 +102,27 @@ public class Certification extends NumberIdObject<Integer> {
     this.happenAt = happenAt;
   }
   
-  public Boolean getPassed() {
-    return passed;
+  public List<CertificationCourse> getCourses() {
+    return courses;
   }
   
-  public void setPassed(Boolean passed) {
-    this.passed = passed;
+  public void setCourses(List<CertificationCourse> courses) {
+    this.courses = courses;
   }
   
-  public Float getScore() {
-    return score;
+  public String getLastBy() {
+    return lastBy;
   }
   
-  public void setScore(Float score) {
-    this.score = score;
+  public void setLastBy(String lastBy) {
+    this.lastBy = lastBy;
   }
   
-  public String getScoreValue() {
-    return scoreValue;
+  public Date getLastAt() {
+    return lastAt;
   }
   
-  public void setScoreValue(String scoreValue) {
-    this.scoreValue = scoreValue;
-  }
-  
-  public String getPassBy() {
-    return passBy;
-  }
-  
-  public void setPassBy(String passBy) {
-    this.passBy = passBy;
-  }
-  
-  public Date getPassAt() {
-    return passAt;
-  }
-  
-  public void setPassAt(Date passAt) {
-    this.passAt = passAt;
+  public void setLastAt(Date lastAt) {
+    this.lastAt = lastAt;
   }
 }

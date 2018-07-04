@@ -5,8 +5,10 @@
   <session-factory>
     <mapping class="org.openurp.edu.extern.identification.model.Certificate"/>
     <mapping class="org.openurp.edu.extern.identification.model.ExternExamSubjectSetting"/>
+    <mapping class="org.openurp.edu.extern.identification.model.ExternExamSubjectField"/>
     <mapping class="org.openurp.edu.extern.identification.model.CertScore"/>
     <mapping class="org.openurp.edu.extern.identification.model.CertScoreCourse"/>
     <mapping class="org.openurp.edu.extern.identification.model.Certification"/>
+    <mapping class="org.openurp.edu.extern.identification.model.CertificationCourse"/>
   </session-factory>
 </hibernate-configuration>

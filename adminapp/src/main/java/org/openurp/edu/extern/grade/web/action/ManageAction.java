@@ -254,9 +254,14 @@ public class ManageAction extends SearchAction {
     }
     String studentCode = get("studentCode");
     if (Strings.isNotEmpty(studentCode)) {
-      Student student = studentService.getStudent(getProject().getId(),studentCode);
-      if (null != student) {
-        put("student", student);
+      try {
+        // FIXME 2018-04-20 zhouqi 暂时如此修复查询报错
+        Student student = entityDao.get(Student.class, new String[] { "project", "user.code" }, new Object[] { getProject(), studentCode }).get(0);
+        if (null != student) {
+          put("student", student);
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
       }
     }
     return forward();

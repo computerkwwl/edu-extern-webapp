@@ -1,13 +1,19 @@
 package org.openurp.edu.extern.identification.model;
 
 import java.sql.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.beangle.commons.entity.pojo.NumberIdTimeObject;
 import org.openurp.edu.base.code.model.ExternExamSubject;
 
@@ -30,8 +36,13 @@ public class ExternExamSubjectSetting extends NumberIdTimeObject<Integer> {
   @NotNull
   private String url;
   
-  @NotNull
-  private String keys;
+  @ManyToMany
+  @JoinTable(name = "xb_e_s_settings_req_fields", joinColumns = @JoinColumn(name = "setting_id", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "field_id", referencedColumnName = "ID"))
+  private List<ExternExamSubjectField> requestFields;
+  
+  @ManyToMany
+  @JoinTable(name = "xb_e_s_settings_res_fields", joinColumns = @JoinColumn(name = "setting_id", referencedColumnName = "ID"), inverseJoinColumns = @JoinColumn(name = "field_id", referencedColumnName = "ID"))
+  private List<ExternExamSubjectField> responseFields;
   
   /** 生效时间 */
   @NotNull
@@ -56,12 +67,48 @@ public class ExternExamSubjectSetting extends NumberIdTimeObject<Integer> {
     this.url = url;
   }
   
-  public String getKeys() {
-    return keys;
+  public List<ExternExamSubjectField> getRequestFields() {
+    return requestFields;
   }
   
-  public void setKeys(String keys) {
-    this.keys = keys;
+  public void setRequestFields(List<ExternExamSubjectField> requestFields) {
+    this.requestFields = requestFields;
+  }
+  
+  public ExternExamSubjectField getRequestField(String innerField) {
+    if (StringUtils.isBlank(innerField) && CollectionUtils.isEmpty(requestFields)) {
+      return null;
+    }
+    
+    for (ExternExamSubjectField field : requestFields) {
+      if (StringUtils.equals(innerField, field.getInnerField())) {
+        return field;
+      }
+    }
+    
+    return null;
+  }
+  
+  public List<ExternExamSubjectField> getResponseFields() {
+    return responseFields;
+  }
+  
+  public void setResponseFields(List<ExternExamSubjectField> responseFields) {
+    this.responseFields = responseFields;
+  }
+
+  public ExternExamSubjectField getResponseField(String innerField) {
+    if (StringUtils.isBlank(innerField) && CollectionUtils.isEmpty(responseFields)) {
+      return null;
+    }
+    
+    for (ExternExamSubjectField field : responseFields) {
+      if (StringUtils.equals(innerField, field.getInnerField())) {
+        return field;
+      }
+    }
+    
+    return null;
   }
   
   public Date getBeginOn() {

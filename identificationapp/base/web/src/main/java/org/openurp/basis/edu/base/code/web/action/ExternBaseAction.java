@@ -73,10 +73,11 @@ public abstract class ExternBaseAction<ID extends Serializable, E extends Entity
     populateConditions(builder);
     settingSearch(builder);
     put(entityNames, entityDao.search(builder));
+    otherSomethingInSearch();
     return forward();
   }
   
-  protected void settingSearch(OqlBuilder<E> builder) {
+  private void settingSearch(OqlBuilder<E> builder) {
     settingLimitInSearch(builder);
     settingOrderByInSearch(builder);
     settingOtherInSearch(builder);
@@ -97,6 +98,10 @@ public abstract class ExternBaseAction<ID extends Serializable, E extends Entity
   }
   
   protected void settingOtherInSearch(OqlBuilder<E> builder) {
+    ;
+  }
+  
+  protected void otherSomethingInSearch() {
     ;
   }
   
@@ -129,17 +134,22 @@ public abstract class ExternBaseAction<ID extends Serializable, E extends Entity
   
   public String save() {
     E entity = populateEntity(entityType, entityName);
-    beforeSave(entity);
-    entityDao.saveOrUpdate(entity);
-    return redirect("search", "info.save.success");
+    if (beforeSave(entity))  {
+      entityDao.saveOrUpdate(entity);
+      return redirect("search", "info.save.success");
+    } else {
+      return forwardError("info.save.failure");
+    }
   }
   
-  protected void beforeSave(E entity) {
+  protected boolean beforeSave(E entity) {
     try {
       BeanUtils.setProperty(entity, "updatedAt", new Date());
+      return true;
     } catch (Exception e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+      return false;
     }
   }
   
