@@ -65,11 +65,11 @@
 [#assign tbody]
                 [#list (certScore.courses)! as csCourse]
                 <tr class="${(csCourse_index % 2 == 0)?string("griddata-even", "griddata-odd")}">
-                  <td>${csCourse.course.code}<input type="hidden" name="csCourse${csCourse_index + k}.course.id" value="${csCourse.course.id}"/></td>
+                  <td>${csCourse.course.code}<input type="hidden" name="csCourse${csCourse_index}.course.id" value="${csCourse.course.id}"/></td>
                   <td>${csCourse.course.name}</td>
                   <td>${csCourse.course.credits}</td>
-                  <td><input id="csCourse${csCourse_index + k}_score" type="text" name="csCourse${csCourse_index + k}.score" value="${(csCourse.score?string("#.####"))!}" maxlength="5" style="width: 50px; text-align: center"/>（<input id="csCourse${csCourse_index + k}_scoreValue" type="text" name="csCourse${csCourse_index + k}.scoreValue" value="${(csCourse.scoreValue)!}" maxlength="10" style="width: 50px; text-align: center"/>）</td>
-                  <td><button id="btnRemoveCourse" type="button">删除</button><input type="hidden" name="csCourse${csCourse_index + k}.id" value="${(csCourse.id)!}"/></td>
+                  <td><input id="csCourse${csCourse_index}_score" type="text" name="csCourse${csCourse_index}.score" value="${(csCourse.score?string("#.####"))!}" maxlength="5" style="width: 50px; text-align: center"/>（<input id="csCourse${csCourse_index}_scoreValue" type="text" name="csCourse${csCourse_index}.scoreValue" value="${(csCourse.scoreValue)!}" maxlength="10" style="width: 50px; text-align: center"/>）</td>
+                  <td><button id="btnRemoveCourse" type="button">删除</button><input type="hidden" name="csCourse${csCourse_index}.id" value="${(csCourse.id)!}"/></td>
                 </tr>
                   [#assign courseIds = courseIds + (courseIds?length != 0)?string(",", "") + csCourse.course.id/]
                 [/#list]
